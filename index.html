@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://threejs.org/build/three.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+<script src="https://threejs.org/examples/js/loaders/PLYLoader.js"></script>
+<script src="https://threejs.org/examples/js/loaders/OBJLoader.js"></script>
+<script src="https://threejs.org/examples/js/loaders/VTKLoader.js"></script>
+<script src='./PHP/readFolder.php'></script>
+<script type="text/javascript">
+var mesh, renderer, scene, camera, controls;
+var objecMap = new Map();
+function showCenterObject(e) {
+    e.stopPropagation();
+    var id = e.target.id;
+    showObjects(id);
+    animate();
+}
+
+function showHoverImage(e) {
+    var id = e.target.id;
+    var imageElement = document.getElementById(id);
+    imageElement.setAttribute("src", `./production/A/onmouse-image/${id}-Onmouse.png`);
+}
+
+function showBaseImage(e) {
+    var id = e.target.id;
+    var imageElement = document.getElementById(id);
+    imageElement.setAttribute("src", `./production/A/base-image/${id}.png`);
+}
+
+function objectSection(dom) {
+    var id ='center-object';
+    var clickDOM = document.getElementById(id);
+    clickDOM.addEventListener("click", function(e) {
+        e.stopPropagation();
+    });
+}
+function showObjects(id) {
+  var objLoader = new THREE.OBJLoader();
+  objLoader.load(`./production/A/object/${id}.obj`,
+    (obj) => {
+        // the request was successfull
+        if (!objecMap.get(id)) {
+            let material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 })
+            mesh = new THREE.Points(obj.children[0].geometry, material)
+            mesh.scale.set( 0.055, 0.055, 0.055);
+            mesh.rotation.x = -Math.PI / 2;
+            mesh.rotation.y = Math.PI;
+            mesh.rotation.z = Math.PI;
+            obj.children[0].geometry.center();
+            scene.add(mesh);
+            mesh.name = id;
+            objecMap.set(id, true)
+        } else {
+            var selectedObject = scene.getObjectByName(id);
+            scene.remove(selectedObject);
+            objecMap.set(id, false);
+        }
+    },
+    (xhr) => {
+        // the request is in progress
+    },
+    (err) => {
+        // something went wrong
+    })
+}
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+
+window.onload = function() {
+    var div = document.getElementById("imagesSection");
+    for (var i = 0; i < files.length; i++) {
+          if (files[i].includes('png') == false) continue;
+          var img = document.createElement("img");
+          var imageId = files[i].slice(0, -4);
+          objecMap.set(imageId, false);
+          img.setAttribute("src", `./production/A/base-image/${files[i]}`);
+          img.setAttribute("id", imageId);
+          img.setAttribute("width", '110px');
+          img.setAttribute("height", '110px');
+          div.appendChild(img);
+          var imageElement = document.getElementById(imageId);
+          imageElement.addEventListener('click', showCenterObject);
+          imageElement.addEventListener('mouseover', showHoverImage);
+          imageElement.addEventListener('mouseout', showBaseImage);
+
+          var audio = document.createElement("audio");
+          var audioId = imageId;
+          audio.setAttribute('autoplay', false);
+          audio.setAttribute('display', 'none');
+          audio.setAttribute("id", `audio-${audioId}`);
+          audio.setAttribute("src", `./production/A/audio/${audioId}.wav`);
+          div.appendChild(audio);
+    }
+    // Initialize canvas
+    // renderer
+    renderer = new THREE.WebGLRenderer();
+    var objectSection = document.getElementById('center-object');
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    renderer.setSize(w, h);
+    objectSection.appendChild(renderer.domElement);
+    // scene
+    scene = new THREE.Scene();
+    // camera
+    camera = new THREE.PerspectiveCamera( 45, w / h, 0.1, 1000 );
+    camera.position.z = 100;
+    // controls
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // to disable rotation
+    // controls.enableRotate = false;
+    // to disable pan
+    controls.enablePan = false;
+    // light
+    var light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(0, 0, 50);
+    scene.add(light);
+    // axes
+    // scene.add(new THREE.AxesHelper(5));
+}
+</script>
+<script type="text/javascript">
+var show = false;
+function openNav() {
+    if (!show) {
+        document.getElementById("mySidenav").style.width = "350px";
+        document.getElementById("mySidenavRight").style.width = "350px";
+    } else {
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("mySidenavRight").style.width = "0";
+    }
+    show = !show;
+}
+</script>
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<div id="content">
+    <input type="submit" value="open" onclick="openNav()" class="open-nav-button"></input>
+    <div id="mySidenav" class="sidenav">
+        <div id="imagesSection"></div>
+    </div>
+    <div class="center">
+        <div id="center-object" class="center-object" onclick="objectSection(this);"></div>
+    </div>
+    <div id="mySidenavRight" class="sidenavRight">
+    </div>
+</div>
+</body>
+</html>
