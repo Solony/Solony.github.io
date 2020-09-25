@@ -32,17 +32,20 @@ var baseImageOfSectionB = ["0214-00-01.png","0214-00-01A.png","0214-00-01B.png",
 "0216-00-18.png","0216-45-11A.png","0216-45-12A.png","0216-45-12B.png","0216-45-18.png","0216-90-11A.png","0216-90-12A.png",
 "0216-90-12B.png","0216-90-18.png"];
 
-var sectionBAudio = ["0214-00-001A.wav","0214-00-001B.wav","0214-00-002A.wav","0214-00-002B.wav","0214-00-003A.wav","0214-00-003B.wav",
-"0214-00-004A.wav","0214-00-004B.wav","0214-00-006A.wav","0214-00-006B.wav","0214-00-01.wav","0214-00-02.wav","0214-00-03.wav","0214-00-04.wav",
-"0214-00-05.wav","0214-00-06.wav","0214-00-07.wav","0214-00-08.wav","0214-45-001A.wav","0214-45-001B.wav","0214-45-002A.wav","0214-45-002B.wav",
-"0214-45-003A.wav","0214-45-003B.wav","0214-45-004A.wav","0214-45-004B.wav","0214-45-006A.wav","0214-45-006B.wav","0214-90-001A.wav","0214-90-001B.wav",
-"0214-90-002A.wav","0214-90-002B.wav","0214-90-003A.wav","0214-90-003B.wav","0214-90-004A.wav","0214-90-004B.wav","0214-90-006A.wav","0214-90-006B.wav",
-"0215-00-007A.wav","0215-00-007B.wav","0215-00-008A.wav","0215-00-008B.wav","0215-00-009A.wav","0215-00-009B.wav","0215-00-010A.wav","0215-00-010B.wav",
-"0215-00-09.wav","0215-00-10.wav","0215-00-11.wav","0215-00-12.wav","0215-00-13.wav","0215-00-14.wav","0215-00-15.wav","0215-45-007A.wav","0215-45-007B.wav",
-"0215-45-008A.wav","0215-45-008B.wav","0215-45-009A.wav","0215-45-009B.wav","0215-45-010A.wav","0215-45-010B.wav","0215-90-007A.wav","0215-90-007B.wav",
-"0215-90-008A.wav","0215-90-008B.wav","0215-90-009A.wav","0215-90-009B.wav","0215-90-010A.wav","0215-90-010B.wav","0216-00-011A.wav","0216-00-012A.wav",
-"0216-00-012B.wav","0216-00-15.wav","0216-00-16.wav","0216-00-17.wav","0216-00-18.wav","0216-45-011A.wav","0216-45-012A.wav","0216-45-012B.wav",
-"0216-45-18.wav","0216-90-011A.wav","0216-90-012A.wav","0216-90-012B.wav","0216-90-18.wav"];
+var sectionBAudio = [
+    "0214-00-001A.ogg", "0214-00-001B.ogg", "0214-00-002A.ogg", "0214-00-002B.ogg", "0214-00-003A.ogg", "0214-00-003B.ogg",
+ "0214-00-004A.ogg", "0214-00-004B.ogg", "0214-00-006A.ogg", "0214-00-006B.ogg", "0214-00-01.ogg", "0214-00-02.ogg", "0214-00-03.ogg",
+ "0214-00-04.ogg", "0214-00-05.ogg", "0214-00-06.ogg", "0214-00-07.ogg", "0214-00-08.ogg", "0214-45-001A.ogg", "0214-45-001B.ogg",
+ "0214-45-002A.ogg", "0214-45-002B.ogg", "0214-45-003A.ogg", "0214-45-003B.ogg", "0214-45-004A.ogg", "0214-45-004B.ogg", "0214-45-006A.ogg",
+ "0214-45-006B.ogg", "0214-90-001A.ogg", "0214-90-001B.ogg", "0214-90-002A.ogg", "0214-90-002B.ogg", "0214-90-003A.ogg", "0214-90-003B.ogg",
+ "0214-90-004A.ogg", "0214-90-004B.ogg", "0214-90-006A.ogg", "0214-90-006B.ogg", "0215-00-007A.ogg", "0215-00-007B.ogg", "0215-00-008A.ogg",
+ "0215-00-008B.ogg", "0215-00-009A.ogg", "0215-00-009B.ogg", "0215-00-010A.ogg", "0215-00-010B.ogg", "0215-00-09.ogg", "0215-00-10.ogg",
+ "0215-00-11.ogg", "0215-00-12.ogg", "0215-00-13.ogg", "0215-00-14.ogg", "0215-00-15.ogg", "0215-45-007A.ogg", "0215-45-007B.ogg",
+ "0215-45-008A.ogg", "0215-45-008B.ogg", "0215-45-009A.ogg", "0215-45-009B.ogg", "0215-45-010A.ogg", "0215-45-010B.ogg", "0215-90-007A.ogg",
+ "0215-90-007B.ogg", "0215-90-008A.ogg", "0215-90-008B.ogg", "0215-90-009A.ogg", "0215-90-009B.ogg", "0215-90-010A.ogg", "0215-90-010B.ogg",
+ "0216-00-011A.ogg", "0216-00-012A.ogg", "0216-00-012B.ogg", "0216-00-15.ogg", "0216-00-16.ogg", "0216-00-17.ogg", "0216-00-18.ogg",
+ "0216-45-011A.ogg", "0216-45-012A.ogg", "0216-45-012B.ogg", "0216-45-18.ogg", "0216-90-011A.ogg", "0216-90-012A.ogg", "0216-90-012B.ogg",
+ "0216-90-18.ogg"];
 
 var objecMap = new Map();
 function showCenterObject(e) {
@@ -75,9 +78,22 @@ function objectSection(dom) {
         e.stopPropagation();
     });
 }
+
+function clearAll() {
+    for (let [id, flag] of objecMap) {
+        if (flag) {
+            var selectedObject = scene.getObjectByName(id);
+            var soundEffect = document.getElementById('audio-' + id);
+            scene.remove(selectedObject);
+            soundEffect.pause();
+            soundEffect.currentTime = 0;
+        }
+    }
+}
+
 function showObjects(id, section) {
   var objLoader = new THREE.OBJLoader();
-  var soundEffect = document.getElementById(id);
+  var soundEffect = document.getElementById('audio-' + id);
   objLoader.load(`./production/${section}/object/${id}.obj`,
     (obj) => {
         // the request was successfull
@@ -136,12 +152,10 @@ function autoCreateDOMS(sectionData, section = 'A') {
           var audio = document.createElement("audio");
           var audioId = imageId;
           if (section == 'A') {
-              audio.setAttribute('autoplay', false);
               audio.setAttribute('display', 'none');
               audio.setAttribute("id", `audio-${audioId}`);
               audio.setAttribute("src", `./production/${section}/audio/${audioId}.wav`);
           } else {
-              audio.setAttribute('autoplay', false);
               audio.setAttribute('display', 'none');
               audio.setAttribute("id", `audio-${audioId}`);
               audio.setAttribute("src", `./production/${section}/audio/${sectionBAudio[i]}`);
@@ -176,8 +190,6 @@ window.onload = function() {
     var light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(0, 0, 50);
     scene.add(light);
-    // axes
-    // scene.add(new THREE.AxesHelper(5));
 }
 </script>
 <script type="text/javascript">
@@ -197,7 +209,8 @@ function openNav() {
 </head>
 <body>
 <div id="content">
-    <input type="submit" value="open" onclick="openNav()" class="open-nav-button"></input>
+    <input type="submit" value="open" onclick="openNav()" class="open-nav"></input>
+    <input type="submit" value="Clear" onclick="clearAll()" class="clear-btn"></input>
     <div id="mySidenav" class="sidenav">
         <div id="imagesSection"></div>
     </div>
