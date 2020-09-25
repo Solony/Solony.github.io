@@ -88,3 +88,38 @@ canvas {
     -webkit-focus-ring-color: rgba(255, 255, 255, 0) !important;
     outline: none !important;
 }
+
+input[type=submit] {
+    background-color: #555555;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 5px;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    position: absolute;
+    left: 50%;
+    bottom: 5%;
+    z-index: 99;
+}
+
+input[type=submit]:hover {
+    background-color: #D8D8D8;
+    color: black;
+}
+
+input[type=submit]:focus {
+    outline: none;
+}
+
+.open-nav {
+    transform: translateX(-55px);
+}
+
+.clear-btn {
+    transform: translateX(55px);
+}
