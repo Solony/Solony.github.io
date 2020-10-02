@@ -47,6 +47,18 @@ var sectionBAudio = [
  "0216-45-011A.ogg", "0216-45-012A.ogg", "0216-45-012B.ogg", "0216-45-18.ogg", "0216-90-011A.ogg", "0216-90-012A.ogg", "0216-90-012B.ogg",
  "0216-90-18.ogg"];
 
+// let difference = filesB.filter(fileName => {
+//     let objName = fileName.slice(0, -4) + '.png';
+//     return !files.includes(objName)
+// });
+//
+// console.log(difference);
+//
+// difference = files.filter(fileName => {
+//     let objName = fileName.slice(0, -4) + '.obj';
+//     return !filesB.includes(objName)
+// });
+// console.log(difference);
 var objecMap = new Map();
 function showCenterObject(e) {
     e.stopPropagation();
@@ -204,10 +216,29 @@ function openNav() {
     }
     show = !show;
 }
+function enter() {
+    var introSoudEffect = document.getElementById('intro-audio');
+    introSoudEffect.pause();
+    introSoudEffect.currentTime = 0;
+    var introPage = document.getElementById('intro');
+    introPage.style.display = 'none';
+    var modelContent = document.getElementById('content');
+    modelContent.style.display = 'block';
+}
 </script>
 <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
+<div id="intro">
+    <div class="title" onclick="enter()">
+        <h2 style="font-weight: lighter !important;">Sensory Overloads of Sounds</h2>
+        <p style="color: #B2B2B2;">Chihan Feng</p>
+    </div>
+    <div class="bottom-line">
+        <p>If you don't hear anything, make sure your sound is on and the volume is turned up.<br/>And please use headphones for the best experience!</p>
+    </div>
+    <audio id="intro-audio" autoplay src="./production/intro.wav"></audio>
+</div>
 <div id="content">
     <input type="submit" value="open" onclick="openNav()" class="open-nav"></input>
     <input type="submit" value="Clear" onclick="clearAll()" class="clear-btn"></input>
