@@ -36,6 +36,7 @@ html, body {
 }
 
 .bottom-line {
+    cursor: pointer;
     color: #959595;
     width: 100%;
     position: absolute;
