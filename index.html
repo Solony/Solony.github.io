@@ -10,6 +10,7 @@
 var mesh, renderer, scene, camera, controls, x, y;
 var numberOfAObj = 1, numberOfBObj = 2;
 var globalRotation = 0;
+var currentA = '';
 var baseImageOfSectionA = ["01-00-01.png","01-00-02.png","01-00-03.png","01-00-04.png","01-00-05.png",
 "01-00-07.png","01-00-08.png","01-00-09.png","01-45-01.png","01-45-02.png","01-45-03.png","01-45-04.png",
 "01-45-05.png","01-45-07.png","01-45-08.png","01-45-09.png","01-90-01.png","01-90-02.png","01-90-03.png",
@@ -114,14 +115,23 @@ function clearAll() {
 }
 
 function showObjects(id, section) {
+  var soundEffect = null;
+  var selectedObject = null;
+  if (section == 'A' && objecMap.get(currentA)) {
+      // 先清掉前一個選擇的A區模型跟聲音檔案
+      selectedObject = scene.getObjectByName(currentA);
+      soundEffect = document.getElementById('audio-' + currentA);
+      scene.remove(selectedObject);
+      objecMap.set(currentA, false);
+      soundEffect.pause();
+      soundEffect.currentTime = 0;
+  }
   var objLoader = new THREE.OBJLoader();
-  var soundEffect = document.getElementById('audio-' + id);
+  soundEffect = document.getElementById('audio-' + id);
   objLoader.load(`./production/${section}/object/${id}.obj`,
     (obj) => {
         // the request was successfull
-        if (!objecMap.get(id)) {
-            if (section == 'A' && !numberOfAObj) return;
-            if (section == 'B' && !numberOfBObj) return;
+        if (section == 'A' && !objecMap.get(id)) {
             let material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 })
             mesh = new THREE.Points(obj.children[0].geometry, material)
             mesh.scale.set( 0.055, 0.055, 0.055);
@@ -132,27 +142,35 @@ function showObjects(id, section) {
             obj.children[0].geometry.center();
             scene.add(mesh);
             mesh.name = id;
+            currentA = id;
             objecMap.set(id, true);
             soundEffect.play();
-            if (section == 'A') {
-                numberOfAObj -= 1;
-            }
-            if (section == 'B') {
+        }
+        if (section == 'B' && numberOfBObj) {
+            if (!objecMap.get(id)) {
+                let material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 })
+                mesh = new THREE.Points(obj.children[0].geometry, material)
+                mesh.scale.set( 0.055, 0.055, 0.055);
+                mesh.rotation.x = -Math.PI / 2;
+                mesh.rotation.y = Math.PI;
+                mesh.rotation.z = Math.PI;
+
+                obj.children[0].geometry.center();
+                scene.add(mesh);
+                mesh.name = id;
+                objecMap.set(id, true);
+                soundEffect.play();
                 numberOfBObj -= 1;
-            }
-        } else {
-            var selectedObject = scene.getObjectByName(id);
-            scene.remove(selectedObject);
-            objecMap.set(id, false);
-            soundEffect.pause();
-            soundEffect.currentTime = 0;
-            if (section == 'A') {
-                numberOfAObj += 1;
-            }
-            if (section == 'B') {
+            } else {
+                selectedObject = scene.getObjectByName(id);
+                scene.remove(selectedObject);
+                objecMap.set(id, false);
+                soundEffect.pause();
+                soundEffect.currentTime = 0;
                 numberOfBObj += 1;
             }
         }
+        return true;
     },
     (xhr) => {
         // the request is in progress
@@ -163,7 +181,6 @@ function showObjects(id, section) {
 }
 function animate() {
     requestAnimationFrame(animate);
-    globalRotation += 0.01;
     renderer.render(scene, camera);
 }
 
@@ -186,15 +203,23 @@ function autoCreateDOMS(sectionData, section = 'A') {
           imageElement.addEventListener('click', showCenterObject);
           imageElement.addEventListener('mouseover', showHoverImage);
           imageElement.addEventListener('mouseout', showBaseImage);
+          if (section == 'A') {
+              var mouseImg = document.createElement("img");
+              mouseImg.setAttribute("src", `./production/A/onmouse-image/${imageId}-Onmouse.png`);
+              mouseImg.style.display = 'none';
+              div.appendChild(mouseImg);
+          }
 
           var audio = document.createElement("audio");
           var audioId = imageId;
           if (section == 'A') {
               audio.setAttribute('display', 'none');
+              audio.setAttribute('loop', true);
               audio.setAttribute("id", `audio-${audioId}`);
               audio.setAttribute("src", `./production/${section}/audio/${audioId}.wav`);
           } else {
               audio.setAttribute('display', 'none');
+              audio.setAttribute('loop', true);
               audio.setAttribute("id", `audio-${audioId}`);
               audio.setAttribute("src", `./production/${section}/audio/${sectionBAudio[i]}`);
           }
@@ -246,9 +271,9 @@ function enter() {
     introSoudEffect.pause();
     introSoudEffect.currentTime = 0;
     var introPage = document.getElementById('intro');
-    introPage.style.display = 'none';
+    introPage.style.zIndex = '998';
     var modelContent = document.getElementById('content');
-    modelContent.style.display = 'block';
+    modelContent.style.zIndex = '999';
 }
 function mousePosition(event) {
     x = event.clientX;
@@ -269,24 +294,26 @@ function rightclick(e) {
 <link rel="stylesheet" href="./css/style.css">
 </head>
 <body onmousemove="mousePosition(event)">
-<div id="intro">
-    <div class="title" onclick="enter()">
-        <h2 style="font-weight: lighter !important; cursor: pointer;">Sensory Overloads of Sounds</h2>
-        <p style="color: #B2B2B2; cursor: pointer;">Chihan Feng</p>
+<div id="container">
+    <div id="intro">
+        <div class="title" onclick="enter()">
+            <h2 style="font-weight: lighter !important; cursor: pointer;">Sensory Overloads of Sounds</h2>
+            <p style="color: #B2B2B2; cursor: pointer;">Chihan Feng</p>
+        </div>
+        <div class="bottom-line">
+            <p>If you don't hear anything, make sure your sound is on and the volume is turned up.<br/>And please use headphones for the best experience!</p>
+        </div>
+        <audio id="intro-audio" autoplay loop src="./production/intro.wav"></audio>
     </div>
-    <div class="bottom-line">
-        <p>If you don't hear anything, make sure your sound is on and the volume is turned up.<br/>And please use headphones for the best experience!</p>
-    </div>
-    <audio id="intro-audio" autoplay src="./production/intro.wav"></audio>
-</div>
-<div id="content" oncontextmenu="rightclick(event)">
-    <div id="mySidenav" class="sidenav">
-        <div id="imagesSection"></div>
-    </div>
-    <div class="center">
-        <div id="center-object" class="center-object" onclick="objectSection(this);"></div>
-    </div>
-    <div id="mySidenavRight" class="sidenavRight">
+    <div id="content" oncontextmenu="rightclick(event)">
+        <div id="mySidenav" class="sidenav">
+            <div id="imagesSection"></div>
+        </div>
+        <div class="center">
+            <div id="center-object" class="center-object" onclick="objectSection(this);"></div>
+        </div>
+        <div id="mySidenavRight" class="sidenavRight">
+        </div>
     </div>
 </div>
 </body>
