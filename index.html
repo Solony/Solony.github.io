@@ -5,6 +5,7 @@
 <script src="https://threejs.org/build/three.js"></script>
 <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 <script src="https://threejs.org/examples/js/loaders/OBJLoader.js"></script>
+<script src="./PHP/readFolder.php"></script>
 <script type="text/javascript">
 var mesh, renderer, scene, camera, controls, x, y;
 var numberOfAObj = 1, numberOfBObj = 2;
@@ -34,39 +35,49 @@ var baseImageOfSectionB = ["0214-00-01.png","0214-00-01A.png","0214-00-01B.png",
 "0216-00-18.png","0216-45-11A.png","0216-45-12A.png","0216-45-12B.png","0216-45-18.png","0216-90-11A.png","0216-90-12A.png",
 "0216-90-12B.png","0216-90-18.png"];
 
-var sectionBAudio = [
-    "0214-00-001A.ogg", "0214-00-001B.ogg", "0214-00-002A.ogg", "0214-00-002B.ogg", "0214-00-003A.ogg", "0214-00-003B.ogg",
- "0214-00-004A.ogg", "0214-00-004B.ogg", "0214-00-006A.ogg", "0214-00-006B.ogg", "0214-00-01.ogg", "0214-00-02.ogg", "0214-00-03.ogg",
- "0214-00-04.ogg", "0214-00-05.ogg", "0214-00-06.ogg", "0214-00-07.ogg", "0214-00-08.ogg", "0214-45-001A.ogg", "0214-45-001B.ogg",
- "0214-45-002A.ogg", "0214-45-002B.ogg", "0214-45-003A.ogg", "0214-45-003B.ogg", "0214-45-004A.ogg", "0214-45-004B.ogg", "0214-45-006A.ogg",
- "0214-45-006B.ogg", "0214-90-001A.ogg", "0214-90-001B.ogg", "0214-90-002A.ogg", "0214-90-002B.ogg", "0214-90-003A.ogg", "0214-90-003B.ogg",
- "0214-90-004A.ogg", "0214-90-004B.ogg", "0214-90-006A.ogg", "0214-90-006B.ogg", "0215-00-007A.ogg", "0215-00-007B.ogg", "0215-00-008A.ogg",
- "0215-00-008B.ogg", "0215-00-009A.ogg", "0215-00-009B.ogg", "0215-00-010A.ogg", "0215-00-010B.ogg", "0215-00-09.ogg", "0215-00-10.ogg",
- "0215-00-11.ogg", "0215-00-12.ogg", "0215-00-13.ogg", "0215-00-14.ogg", "0215-00-15.ogg", "0215-45-007A.ogg", "0215-45-007B.ogg",
- "0215-45-008A.ogg", "0215-45-008B.ogg", "0215-45-009A.ogg", "0215-45-009B.ogg", "0215-45-010A.ogg", "0215-45-010B.ogg", "0215-90-007A.ogg",
- "0215-90-007B.ogg", "0215-90-008A.ogg", "0215-90-008B.ogg", "0215-90-009A.ogg", "0215-90-009B.ogg", "0215-90-010A.ogg", "0215-90-010B.ogg",
- "0216-00-011A.ogg", "0216-00-012A.ogg", "0216-00-012B.ogg", "0216-00-15.ogg", "0216-00-16.ogg", "0216-00-17.ogg", "0216-00-18.ogg",
- "0216-45-011A.ogg", "0216-45-012A.ogg", "0216-45-012B.ogg", "0216-45-18.ogg", "0216-90-011A.ogg", "0216-90-012A.ogg", "0216-90-012B.ogg",
- "0216-90-18.ogg"];
-
-// let difference = filesB.filter(fileName => {
-//     let objName = fileName.slice(0, -4) + '.png';
-//     return !files.includes(objName)
-// });
-//
-// console.log(difference);
-//
-// difference = files.filter(fileName => {
-//     let objName = fileName.slice(0, -4) + '.obj';
-//     return !filesB.includes(objName)
-// });
-// console.log(difference);
 var objecMap = new Map();
 function showCenterObject(e) {
     e.stopPropagation();
     var id = e.target.id;
     var section = e.target.name;
-    showObjects(id, section);
+    var imageElement = document.getElementById(id);
+
+    var div = document.getElementById("imagesSection");
+    var audio = document.createElement("audio");
+    var audioId = id;
+    audio.setAttribute('display', 'none');
+    audio.setAttribute('loop', true);
+    audio.setAttribute("id", `audio-${audioId}`);
+    div.appendChild(audio);
+    setTimeout(function(){
+        if (section == 'A')
+            audio.setAttribute("src", `./production/${section}/audio/${audioId}.wav`);
+        else
+            audio.setAttribute("src", `./production/${section}/audio/${audioId}.ogg`);
+
+        setTimeout(function(){
+            console.log('set a section Image');
+            if (section == 'A') {
+                imageElement.style.opacity = 0;
+                imageElement.style.transitionDuration = '0.5s';
+                if (!objecMap.get(id)) {
+                    imageElement.setAttribute("src", `./production/A/onmouse-image/${id}-Onmouse.png`);
+                } else {
+                    imageElement.setAttribute("src", `./production/A/base-image/${id}.png`);
+                }
+                imageElement.style.opacity = 1;
+            }
+
+            setTimeout(function(){
+                showObjects(id, section);
+            }, 10);
+
+        }, 10);
+
+    }, 10);
+
+
+
     animate();
 }
 
@@ -97,6 +108,9 @@ function objectSection(dom) {
     clickDOM.addEventListener("click", function(e) {
         e.stopPropagation();
     });
+    document.getElementById("mySidenav").style.width = "0";
+    document.getElementById("mySidenavRight").style.width = "0";
+    show = false;
 }
 
 function clearAll() {
@@ -104,6 +118,10 @@ function clearAll() {
         if (flag) {
             var selectedObject = scene.getObjectByName(id);
             var soundEffect = document.getElementById('audio-' + id);
+            if (baseImageOfSectionA.indexOf(id + '.png') > -1) {
+                var imageElement = document.getElementById(id);
+                imageElement.setAttribute("src", `./production/A/base-image/${id}.png`);
+            }
             scene.remove(selectedObject);
             soundEffect.pause();
             soundEffect.currentTime = 0;
@@ -124,59 +142,70 @@ function showObjects(id, section) {
       objecMap.set(currentA, false);
       soundEffect.pause();
       soundEffect.currentTime = 0;
+      var imageElement = document.getElementById(currentA);
+      imageElement.setAttribute("src", `./production/A/base-image/${currentA}.png`);
+      if (id == currentA) {
+          return;
+      }
   }
-  var objLoader = new THREE.OBJLoader();
-  soundEffect = document.getElementById('audio-' + id);
-  objLoader.load(`./production/${section}/object/${id}.obj`,
-    (obj) => {
-        // the request was successfull
-        if (section == 'A' && !objecMap.get(id)) {
-            let material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 })
-            mesh = new THREE.Points(obj.children[0].geometry, material)
-            mesh.scale.set( 0.055, 0.055, 0.055);
-            mesh.rotation.x = -Math.PI / 2;
-            mesh.rotation.y = Math.PI;
-            mesh.rotation.z = Math.PI;
+  if (
+         (section == 'B' && numberOfBObj > 0) ||
+         (section == 'A' && !objecMap.get(id))
+    ) {
+         var objLoader = new THREE.OBJLoader();
+         soundEffect = document.getElementById('audio-' + id);
+         objLoader.load(`./production/${section}/object/${id}.obj`,
+           (obj) => {
+               // the request was successfull
+               if (section == 'A' && !objecMap.get(id)) {
+                   let material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 })
+                   mesh = new THREE.Points(obj.children[0].geometry, material)
+                   mesh.scale.set( 0.055, 0.055, 0.055);
+                   mesh.rotation.x = -Math.PI / 2;
+                   mesh.rotation.y = Math.PI;
+                   mesh.rotation.z = Math.PI;
 
-            obj.children[0].geometry.center();
-            scene.add(mesh);
-            mesh.name = id;
-            currentA = id;
-            objecMap.set(id, true);
-            soundEffect.play();
-        }
-        if (section == 'B' && numberOfBObj) {
-            if (!objecMap.get(id)) {
-                let material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 })
-                mesh = new THREE.Points(obj.children[0].geometry, material)
-                mesh.scale.set( 0.055, 0.055, 0.055);
-                mesh.rotation.x = -Math.PI / 2;
-                mesh.rotation.y = Math.PI;
-                mesh.rotation.z = Math.PI;
+                   obj.children[0].geometry.center();
+                   scene.add(mesh);
+                   mesh.name = id;
+                   currentA = id;
+                   objecMap.set(id, true);
+                   soundEffect.play();
+               }
+               if (section == 'B' && numberOfBObj) {
+                   if (!objecMap.get(id)) {
+                       let material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 })
+                       mesh = new THREE.Points(obj.children[0].geometry, material)
+                       mesh.scale.set( 0.055, 0.055, 0.055);
+                       mesh.rotation.x = -Math.PI / 2;
+                       mesh.rotation.y = Math.PI;
+                       mesh.rotation.z = Math.PI;
 
-                obj.children[0].geometry.center();
-                scene.add(mesh);
-                mesh.name = id;
-                objecMap.set(id, true);
-                soundEffect.play();
-                numberOfBObj -= 1;
-            } else {
-                selectedObject = scene.getObjectByName(id);
-                scene.remove(selectedObject);
-                objecMap.set(id, false);
-                soundEffect.pause();
-                soundEffect.currentTime = 0;
-                numberOfBObj += 1;
-            }
-        }
-        return true;
-    },
-    (xhr) => {
-        // the request is in progress
-    },
-    (err) => {
-        // something went wrong
-    })
+                       obj.children[0].geometry.center();
+                       scene.add(mesh);
+                       mesh.name = id;
+                       objecMap.set(id, true);
+                       soundEffect.play();
+                       numberOfBObj -= 1;
+                   } else {
+                       selectedObject = scene.getObjectByName(id);
+                       scene.remove(selectedObject);
+                       objecMap.set(id, false);
+                       soundEffect.pause();
+                       soundEffect.currentTime = 0;
+                       numberOfBObj += 1;
+                   }
+               }
+           },
+           (xhr) => {
+               // the request is in progress
+               return true;
+           },
+           (err) => {
+               // something went wrong
+               return true;
+           })
+       }
 }
 function animate() {
     requestAnimationFrame(animate);
@@ -200,29 +229,14 @@ function autoCreateDOMS(sectionData, section = 'A') {
           div.appendChild(img);
           var imageElement = document.getElementById(imageId);
           imageElement.addEventListener('click', showCenterObject);
-          imageElement.addEventListener('mouseover', showHoverImage);
-          imageElement.addEventListener('mouseout', showBaseImage);
-          if (section == 'A') {
-              var mouseImg = document.createElement("img");
-              mouseImg.setAttribute("src", `./production/A/onmouse-image/${imageId}-Onmouse.png`);
-              mouseImg.style.display = 'none';
-              div.appendChild(mouseImg);
-          }
-
-          var audio = document.createElement("audio");
-          var audioId = imageId;
-          if (section == 'A') {
-              audio.setAttribute('display', 'none');
-              audio.setAttribute('loop', true);
-              audio.setAttribute("id", `audio-${audioId}`);
-              audio.setAttribute("src", `./production/${section}/audio/${audioId}.wav`);
-          } else {
-              audio.setAttribute('display', 'none');
-              audio.setAttribute('loop', true);
-              audio.setAttribute("id", `audio-${audioId}`);
-              audio.setAttribute("src", `./production/${section}/audio/${sectionBAudio[i]}`);
-          }
-          div.appendChild(audio);
+          // imageElement.addEventListener('mouseover', showHoverImage);
+          // imageElement.addEventListener('mouseout', showBaseImage);
+          // if (section == 'A') {
+          //     var mouseImg = document.createElement("img");
+          //     mouseImg.setAttribute("src", `./production/A/onmouse-image/${imageId}-Onmouse.png`);
+          //     mouseImg.style.display = 'none';
+          //     div.appendChild(mouseImg);
+          // }
     }
 }
 
@@ -278,8 +292,6 @@ function mousePosition(event) {
     x = event.clientX;
     if (x <= 350 || x >= window.innerWidth - 300) {
         show = true;
-    } else {
-        show = false;
     }
     openNav();
 }
@@ -293,6 +305,10 @@ function rightclick(e) {
 <link rel="stylesheet" href="./css/style.css">
 </head>
 <body onmousemove="mousePosition(event)">
+<audio style="width: 1px; height: 1px; opacity: 0; position: absolute;" id="intro-audio" controls autoplay loop>
+    <source src="./production/intro.wav" type="audio/wav">
+    Your browser does not support the audio element.
+</audio>
 <div id="container">
     <div id="intro">
         <div class="title" onclick="enter()">
@@ -302,10 +318,6 @@ function rightclick(e) {
         <div class="bottom-line">
             <p>If you don't hear anything, make sure your sound is on and the volume is turned up.<br/>And please use headphones for the best experience!</p>
         </div>
-        <audio style="width: 1px; height: 1px; opacity: 0;" id="intro-audio" controls autoplay loop>
-            <source src="./production/intro.wav" type="audio/wav">
-            Your browser does not support the audio element.
-        </audio>
     </div>
     <div id="content" oncontextmenu="rightclick(event)">
         <div id="mySidenav" class="sidenav">
