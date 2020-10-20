@@ -35,49 +35,27 @@ var baseImageOfSectionB = ["0214-00-01.png","0214-00-01A.png","0214-00-01B.png",
 "0216-00-18.png","0216-45-11A.png","0216-45-12A.png","0216-45-12B.png","0216-45-18.png","0216-90-11A.png","0216-90-12A.png",
 "0216-90-12B.png","0216-90-18.png"];
 
+var showLoadingOverlay = false;
 var objecMap = new Map();
-function showCenterObject(e) {
+async function showCenterObject(e) {
+    showLoadingOverlay = true;
     e.stopPropagation();
     var id = e.target.id;
     var section = e.target.name;
-    var imageElement = document.getElementById(id);
-
     var div = document.getElementById("imagesSection");
     var audio = document.createElement("audio");
     var audioId = id;
+
     audio.setAttribute('display', 'none');
     audio.setAttribute('loop', true);
     audio.setAttribute("id", `audio-${audioId}`);
+    if (section == 'A')
+        audio.setAttribute("src", `./production/${section}/audio/${audioId}.wav`);
+    else
+        audio.setAttribute("src", `./production/${section}/audio/${audioId}.ogg`);
     div.appendChild(audio);
-    setTimeout(function(){
-        if (section == 'A')
-            audio.setAttribute("src", `./production/${section}/audio/${audioId}.wav`);
-        else
-            audio.setAttribute("src", `./production/${section}/audio/${audioId}.ogg`);
 
-        setTimeout(function(){
-            console.log('set a section Image');
-            if (section == 'A') {
-                imageElement.style.opacity = 0;
-                imageElement.style.transitionDuration = '0.5s';
-                if (!objecMap.get(id)) {
-                    imageElement.setAttribute("src", `./production/A/onmouse-image/${id}-Onmouse.png`);
-                } else {
-                    imageElement.setAttribute("src", `./production/A/base-image/${id}.png`);
-                }
-                imageElement.style.opacity = 1;
-            }
-
-            setTimeout(function(){
-                showObjects(id, section);
-            }, 10);
-
-        }, 10);
-
-    }, 10);
-
-
-
+    showObjects(id, section);
     animate();
 }
 
@@ -149,10 +127,14 @@ function showObjects(id, section) {
       }
   }
   if (
-         (section == 'B' && numberOfBObj > 0) ||
+         (section == 'B') ||
          (section == 'A' && !objecMap.get(id))
     ) {
          var objLoader = new THREE.OBJLoader();
+         var loader = document.getElementById("loader");
+         var loaderBg = document.getElementById("loading-background");
+         loader.style.zIndex = '1001';
+         loaderBg.style.zIndex = '1000';
          soundEffect = document.getElementById('audio-' + id);
          objLoader.load(`./production/${section}/object/${id}.obj`,
            (obj) => {
@@ -172,8 +154,13 @@ function showObjects(id, section) {
                    objecMap.set(id, true);
                    soundEffect.play();
                }
-               if (section == 'B' && numberOfBObj) {
+               if (section == 'B') {
                    if (!objecMap.get(id)) {
+                       if (numberOfBObj == 0) {
+                           loader.style.zIndex = '996';
+                           loaderBg.style.zIndex = '995';
+                           return true;
+                       }
                        let material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 })
                        mesh = new THREE.Points(obj.children[0].geometry, material)
                        mesh.scale.set( 0.055, 0.055, 0.055);
@@ -196,15 +183,28 @@ function showObjects(id, section) {
                        numberOfBObj += 1;
                    }
                }
+               loader.style.zIndex = '996';
+               loaderBg.style.zIndex = '995';
            },
            (xhr) => {
                // the request is in progress
-               return true;
+               return false;
            },
            (err) => {
                // something went wrong
-               return true;
+               return false;
            })
+       }
+       var imageElement = document.getElementById(id);
+       if (section == 'A') {
+           imageElement.style.opacity = 0;
+           imageElement.style.transitionDuration = '0.5s';
+           if (!objecMap.get(id)) {
+               imageElement.setAttribute("src", `./production/A/onmouse-image/${id}-Onmouse.png`);
+           } else {
+               imageElement.setAttribute("src", `./production/A/base-image/${id}.png`);
+           }
+           imageElement.style.opacity = 1;
        }
 }
 function animate() {
@@ -301,6 +301,9 @@ function rightclick(e) {
         clearAll();
     }
 }
+function prevent(e) {
+    e.preventDefault();
+}
 </script>
 <link rel="stylesheet" href="./css/style.css">
 </head>
@@ -310,6 +313,13 @@ function rightclick(e) {
     Your browser does not support the audio element.
 </audio>
 <div id="container">
+    <div id="loader">
+        <div class="lds-ripple">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="loading-background" onclick="prevent(event)"></div>
     <div id="intro">
         <div class="title" onclick="enter()">
             <h2 style="font-weight: lighter !important; cursor: pointer;">Sensory Overloads of Sounds</h2>
