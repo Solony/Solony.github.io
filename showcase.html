@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://threejs.org/build/three.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+<script src="https://threejs.org/examples/js/loaders/OBJLoader.js"></script>
+<script src="./PHP/readFolder.php"></script>
+<script type="text/javascript">
+var mesh, renderer, scene, camera, controls, x, y;
+var numberOfAObj = 1, numberOfBObj = 2;
+var globalRotation = 0;
+var currentA = '';
+var baseImageOfSectionA = ["01-00-01.png","01-00-02.png","01-00-03.png","01-00-04.png","01-00-05.png",
+"01-00-07.png","01-00-08.png","01-00-09.png","01-45-01.png","01-45-02.png","01-45-03.png","01-45-04.png",
+"01-45-05.png","01-45-07.png","01-45-08.png","01-45-09.png","01-90-01.png","01-90-02.png","01-90-03.png",
+"01-90-04.png","01-90-05.png","01-90-07.png","01-90-08.png","01-90-09.png","02-00-10.png","02-00-11.png",
+"02-00-12.png","02-00-13.png","02-00-14.png","02-00-15.png","02-00-16.png","02-00-17.png","02-45-10.png",
+"02-45-11.png","02-45-12.png","02-45-13.png","02-45-14.png","02-45-15.png","02-45-16.png","02-45-17.png",
+"02-90-10.png","02-90-11.png","02-90-12.png","02-90-13.png","02-90-14.png","02-90-15.png","02-90-16.png",
+"02-90-17.png","05-00.png","05-45.png","05-90.png","06-00.png","06-45.png","06-90.png","07-00.png","07-45.png",
+"07-90.png","08-00.png","08-45.png","08-90.png","09-00.png","09-45.png","09-90.png"];
+
+var baseImageOfSectionB = ["0214-00-01.png","0214-00-01A.png","0214-00-01B.png","0214-00-02.png","0214-00-02A.png",
+"0214-00-02B.png","0214-00-03.png","0214-00-03A.png","0214-00-03B.png","0214-00-04.png","0214-00-04A.png","0214-00-04B.png",
+"0214-00-05.png","0214-00-06.png","0214-00-06A.png","0214-00-06B.png","0214-00-07.png","0214-00-08.png","0214-45-01A.png",
+"0214-45-01B.png","0214-45-02A.png","0214-45-02B.png","0214-45-03A.png","0214-45-03B.png","0214-45-04A.png","0214-45-04B.png",
+"0214-45-06A.png","0214-45-06B.png","0214-90-01A.png","0214-90-01B.png","0214-90-02A.png","0214-90-02B.png","0214-90-03A.png",
+"0214-90-03B.png","0214-90-04A.png","0214-90-04B.png","0214-90-06A.png","0214-90-06B.png","0215-00-07A.png","0215-00-07B.png",
+"0215-00-08A.png","0215-00-08B.png","0215-00-09.png","0215-00-09A.png","0215-00-09B.png","0215-00-10.png","0215-00-10A.png",
+"0215-00-10B.png","0215-00-11.png","0215-00-12.png","0215-00-13.png","0215-00-14.png","0215-00-15.png","0215-45-07A.png",
+"0215-45-07B.png","0215-45-08A.png","0215-45-08B.png","0215-45-09A.png","0215-45-09B.png","0215-45-10A.png","0215-45-10B.png",
+"0215-90-07A.png","0215-90-07B.png","0215-90-08A.png","0215-90-08B.png","0215-90-09A.png","0215-90-09B.png","0215-90-10A.png",
+"0215-90-10B.png","0216-00-11A.png","0216-00-12A.png","0216-00-12B.png","0216-00-15.png","0216-00-16.png","0216-00-17.png",
+"0216-00-18.png","0216-45-11A.png","0216-45-12A.png","0216-45-12B.png","0216-45-18.png","0216-90-11A.png","0216-90-12A.png",
+"0216-90-12B.png","0216-90-18.png"];
+
+var showLoadingOverlay = false;
+var objecMap = new Map();
+async function showCenterObject(e) {
+    showLoadingOverlay = true;
+    e.stopPropagation();
+    var id = e.target.id;
+    var section = e.target.name;
+    var div = document.getElementById("imagesSection");
+    var audio = document.createElement("audio");
+    var audioId = id;
+
+    audio.setAttribute('display', 'none');
+    audio.setAttribute('loop', true);
+    audio.setAttribute("id", `audio-${audioId}`);
+    if (section == 'A')
+        audio.setAttribute("src", `./production/${section}/audio/${audioId}.wav`);
+    else
+        audio.setAttribute("src", `./production/${section}/audio/${audioId}.ogg`);
+    div.appendChild(audio);
+
+    showObjects(id, section);
+    animate();
+}
+
+function showHoverImage(e) {
+    var section = e.target.name;
+    if (section == 'B') return;
+    var id = e.target.id;
+    var imageElement = document.getElementById(id);
+    imageElement.style.opacity = 0;
+    setTimeout(function(){
+        imageElement.style.transitionDuration = '0.5s';
+        imageElement.setAttribute("src", `./production/A/onmouse-image/${id}-Onmouse.png`);
+        imageElement.style.opacity = 1;
+    }, 1);
+}
+
+function showBaseImage(e) {
+    var id = e.target.id;
+    var section = e.target.name;
+    var imageElement = document.getElementById(id);
+    imageElement.setAttribute("src", `./production/${section}/base-image/${id}.png`);
+    imageElement.style = '';
+}
+
+function objectSection(dom) {
+    var id ='center-object';
+    var clickDOM = document.getElementById(id);
+    clickDOM.addEventListener("click", function(e) {
+        e.stopPropagation();
+    });
+    document.getElementById("mySidenav").style.width = "0";
+    document.getElementById("mySidenavRight").style.width = "0";
+    show = false;
+}
+
+function clearAll() {
+    for (let [id, flag] of objecMap) {
+        if (flag) {
+            var selectedObject = scene.getObjectByName(id);
+            var soundEffect = document.getElementById('audio-' + id);
+            if (baseImageOfSectionA.indexOf(id + '.png') > -1) {
+                var imageElement = document.getElementById(id);
+                imageElement.setAttribute("src", `./production/A/base-image/${id}.png`);
+            }
+            scene.remove(selectedObject);
+            soundEffect.pause();
+            soundEffect.currentTime = 0;
+        }
+    }
+    numberOfAObj = 1;
+    numberOfBObj = 2;
+}
+
+function showObjects(id, section) {
+  var soundEffect = null;
+  var selectedObject = null;
+  if (section == 'A' && objecMap.get(currentA)) {
+      // 先清掉前一個選擇的A區模型跟聲音檔案
+      selectedObject = scene.getObjectByName(currentA);
+      soundEffect = document.getElementById('audio-' + currentA);
+      scene.remove(selectedObject);
+      objecMap.set(currentA, false);
+      soundEffect.pause();
+      soundEffect.currentTime = 0;
+      var imageElement = document.getElementById(currentA);
+      imageElement.setAttribute("src", `./production/A/base-image/${currentA}.png`);
+      if (id == currentA) {
+          return;
+      }
+  }
+  if (
+         (section == 'B') ||
+         (section == 'A' && !objecMap.get(id))
+    ) {
+         var objLoader = new THREE.OBJLoader();
+         var loader = document.getElementById("loader");
+         var loaderBg = document.getElementById("loading-background");
+         loader.style.zIndex = '1001';
+         loaderBg.style.zIndex = '1000';
+         soundEffect = document.getElementById('audio-' + id);
+         objLoader.load(`./production/${section}/object/${id}.obj`,
+           (obj) => {
+               // the request was successfull
+               if (section == 'A' && !objecMap.get(id)) {
+                   let material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 })
+                   mesh = new THREE.Points(obj.children[0].geometry, material)
+                   mesh.scale.set( 0.055, 0.055, 0.055);
+                   mesh.rotation.x = -Math.PI / 2;
+                   mesh.rotation.y = Math.PI;
+                   mesh.rotation.z = Math.PI;
+
+                   obj.children[0].geometry.center();
+                   scene.add(mesh);
+                   mesh.name = id;
+                   currentA = id;
+                   objecMap.set(id, true);
+                   soundEffect.play();
+               }
+               if (section == 'B') {
+                   if (!objecMap.get(id)) {
+                       if (numberOfBObj == 0) {
+                           loader.style.zIndex = '996';
+                           loaderBg.style.zIndex = '995';
+                           return true;
+                       }
+                       let material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 })
+                       mesh = new THREE.Points(obj.children[0].geometry, material)
+                       mesh.scale.set( 0.055, 0.055, 0.055);
+                       mesh.rotation.x = -Math.PI / 2;
+                       mesh.rotation.y = Math.PI;
+                       mesh.rotation.z = Math.PI;
+
+                       obj.children[0].geometry.center();
+                       scene.add(mesh);
+                       mesh.name = id;
+                       objecMap.set(id, true);
+                       soundEffect.play();
+                       numberOfBObj -= 1;
+                   } else {
+                       selectedObject = scene.getObjectByName(id);
+                       scene.remove(selectedObject);
+                       objecMap.set(id, false);
+                       soundEffect.pause();
+                       soundEffect.currentTime = 0;
+                       numberOfBObj += 1;
+                   }
+               }
+               loader.style.zIndex = '996';
+               loaderBg.style.zIndex = '995';
+           },
+           (xhr) => {
+               // the request is in progress
+               return false;
+           },
+           (err) => {
+               // something went wrong
+               return false;
+           })
+       }
+       var imageElement = document.getElementById(id);
+       if (section == 'A') {
+           imageElement.style.opacity = 0;
+           imageElement.style.transitionDuration = '0.5s';
+           if (!objecMap.get(id)) {
+               imageElement.setAttribute("src", `./production/A/onmouse-image/${id}-Onmouse.png`);
+           } else {
+               imageElement.setAttribute("src", `./production/A/base-image/${id}.png`);
+           }
+           imageElement.style.opacity = 1;
+       }
+}
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+
+function autoCreateDOMS(sectionData, section = 'A') {
+    var div = document.getElementById("imagesSection");
+    if (section == 'B') {
+        div = document.getElementById("mySidenavRight");
+    }
+    for (var i = 0; i < sectionData.length; i++) {
+          var img = document.createElement("img");
+          var imageId = sectionData[i].slice(0, -4);
+          objecMap.set(imageId, false);
+          img.setAttribute("src", `./production/${section}/base-image/${sectionData[i]}`);
+          img.setAttribute("id", imageId);
+          img.setAttribute("width", '110px');
+          img.setAttribute("height", '110px');
+          img.setAttribute("name", `${section}`);
+          div.appendChild(img);
+          var imageElement = document.getElementById(imageId);
+          imageElement.addEventListener('click', showCenterObject);
+          // imageElement.addEventListener('mouseover', showHoverImage);
+          // imageElement.addEventListener('mouseout', showBaseImage);
+          // if (section == 'A') {
+          //     var mouseImg = document.createElement("img");
+          //     mouseImg.setAttribute("src", `./production/A/onmouse-image/${imageId}-Onmouse.png`);
+          //     mouseImg.style.display = 'none';
+          //     div.appendChild(mouseImg);
+          // }
+    }
+}
+
+window.onload = function() {
+    autoCreateDOMS(baseImageOfSectionA);
+    autoCreateDOMS(baseImageOfSectionB, 'B');
+    // Initialize canvas
+    // renderer
+    renderer = new THREE.WebGLRenderer();
+    var objectSection = document.getElementById('center-object');
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    renderer.setSize(w, h);
+    objectSection.appendChild(renderer.domElement);
+    // scene
+    scene = new THREE.Scene();
+    // camera
+    camera = new THREE.PerspectiveCamera( 45, w / h, 0.1, 1000 );
+    camera.position.z = 75;
+    // controls
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // to disable rotation
+    // controls.enableRotate = false;
+    // to disable pan
+    controls.enablePan = false;
+    // light
+    var light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(0, 0, 50);
+    scene.add(light);
+}
+</script>
+<script type="text/javascript">
+var show = false;
+function openNav() {
+    if (show) {
+        document.getElementById("mySidenav").style.width = "350px";
+        document.getElementById("mySidenavRight").style.width = "350px";
+    } else {
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("mySidenavRight").style.width = "0";
+    }
+}
+function enter() {
+    var introSoudEffect = document.getElementById('intro-audio');
+    introSoudEffect.pause();
+    introSoudEffect.currentTime = 0;
+    var introPage = document.getElementById('intro');
+    introPage.style.zIndex = '998';
+    var modelContent = document.getElementById('content');
+    modelContent.style.zIndex = '999';
+}
+function mousePosition(event) {
+    x = event.clientX;
+    if (x <= 350 || x >= window.innerWidth - 300) {
+        show = true;
+    }
+    openNav();
+}
+function rightclick(e) {
+    e.preventDefault();
+    if (e.which == 3) {
+        clearAll();
+    }
+}
+function prevent(e) {
+    e.preventDefault();
+}
+</script>
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body onmousemove="mousePosition(event)">
+<div id="container">
+    <div id="loader">
+        <div class="lds-ripple">
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="loading-background" onclick="prevent(event)"></div>
+    <div id="content" oncontextmenu="rightclick(event)">
+        <div id="mySidenav" class="sidenav">
+            <div id="imagesSection"></div>
+        </div>
+        <div class="center">
+            <div id="center-object" class="center-object" onclick="objectSection(this);"></div>
+        </div>
+        <div id="mySidenavRight" class="sidenavRight">
+        </div>
+    </div>
+</div>
+</body>
+</html>
