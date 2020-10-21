@@ -49,10 +49,7 @@ async function showCenterObject(e) {
     audio.setAttribute('display', 'none');
     audio.setAttribute('loop', true);
     audio.setAttribute("id", `audio-${audioId}`);
-    if (section == 'A')
-        audio.setAttribute("src", `./production/${section}/audio/${audioId}.wav`);
-    else
-        audio.setAttribute("src", `./production/${section}/audio/${audioId}.ogg`);
+    audio.setAttribute("src", `./production/${section}/audio/${audioId}.ogg`);
     div.appendChild(audio);
 
     showObjects(id, section);
@@ -229,14 +226,6 @@ function autoCreateDOMS(sectionData, section = 'A') {
           div.appendChild(img);
           var imageElement = document.getElementById(imageId);
           imageElement.addEventListener('click', showCenterObject);
-          // imageElement.addEventListener('mouseover', showHoverImage);
-          // imageElement.addEventListener('mouseout', showBaseImage);
-          // if (section == 'A') {
-          //     var mouseImg = document.createElement("img");
-          //     mouseImg.setAttribute("src", `./production/A/onmouse-image/${imageId}-Onmouse.png`);
-          //     mouseImg.style.display = 'none';
-          //     div.appendChild(mouseImg);
-          // }
     }
 }
 
